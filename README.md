@@ -1,3 +1,5 @@
+Non-technical guide: see README_NONTECH.md
+
 # netsuite-cashflow
 
 Automated cash flow reporting from NetSuite. Converts GAAP-basis books into an indirect-method cash flow statement and produces a formatted Excel workbook — on the day cash is closed, not 15 days later.
