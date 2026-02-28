@@ -68,14 +68,14 @@ Use this if you can create NetSuite Token-Based Authentication access. After the
 **Option B: No API Access (CSV export mode)**
 Use this if you can’t (or don’t want to) set up NetSuite API tokens.
 
-You export these CSVs from NetSuite and put them in one folder:
+1. You export these CSVs from NetSuite and put them in one folder:
 
 balances_current.csv (trial balance at current period end)
 balances_prior.csv (trial balance at prior period end)
 pl_detail.csv (P&L activity for the period)
 cash_transactions.csv (cash/bank account transactions)
 
-Then the runner points the tool at that folder and it generates the Excel report.
+2. Then the runner points the tool at that folder and it generates the Excel report.
 
 ## What to check in the Excel file (simple checklist)
 
