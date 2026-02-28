@@ -1,0 +1,101 @@
+# NetSuite Cash Reporting — Configuration Template
+# Copy this file to config/settings.yaml and fill in your values.
+# settings.yaml is gitignored; never commit credentials.
+
+# ── NetSuite Connection ─────────────────────────────────────────────────────
+netsuite:
+  # Your NetSuite account ID (Admin > Company > Company Information)
+  # Format: "1234567" (production) or "1234567_SB1" (sandbox)
+  account_id: "YOUR_ACCOUNT_ID"
+
+  # Token-Based Authentication credentials.
+  # Setup: NetSuite > Setup > Integration > Manage Integrations > New
+  # Then: Setup > Users/Roles > Access Tokens > New
+  consumer_key:     "YOUR_CONSUMER_KEY"
+  consumer_secret:  "YOUR_CONSUMER_SECRET"
+  token_id:         "YOUR_TOKEN_ID"
+  token_secret:     "YOUR_TOKEN_SECRET"
+
+  # Set to true if using a sandbox account
+  is_sandbox: false
+
+# ── Subsidiary (OneWorld only) ───────────────────────────────────────────────
+# If you use NetSuite OneWorld (multiple subsidiaries), set the subsidiary ID
+# to scope all queries to a single entity. Leave as null for single-entity
+# accounts or to aggregate all subsidiaries.
+# Find the ID: Lists > Relationships > Subsidiaries, note the Internal ID.
+subsidiary_id: null
+
+# ── Account Mappings ─────────────────────────────────────────────────────────
+# Map your NetSuite account Internal IDs to each cash flow category.
+# Run `python main.py discover` to see all accounts with their IDs and types.
+account_mappings:
+  # Bank / Cash accounts (type: Bank)
+  cash_accounts: []              # e.g., [101, 102]
+
+  # Accounts Receivable (type: AcctRec)
+  accounts_receivable: []        # e.g., [120]
+
+  # Inventory (type: Inventory or OthCurrAsset)
+  inventory: []                  # e.g., [130]
+
+  # Prepaid expenses and other current assets (type: OthCurrAsset)
+  prepaid_and_other_assets: []   # e.g., [150, 155]
+
+  # Accounts Payable (type: AcctPay)
+  accounts_payable: []           # e.g., [200]
+
+  # Accrued liabilities / other current liabilities (type: OthCurrLiab)
+  accrued_liabilities: []        # e.g., [210, 215]
+
+  # Depreciation expense accounts (type: Expense)
+  depreciation_expense: []       # e.g., [510]
+
+  # Amortization expense accounts (type: Expense)
+  amortization_expense: []       # e.g., [515]
+
+  # Gross fixed asset accounts (type: FixedAsset)
+  fixed_assets: []               # e.g., [160, 165]
+
+  # Accumulated depreciation contra-asset accounts (type: FixedAsset, credit balance)
+  accumulated_depreciation: []   # e.g., [170]
+
+  # Long-term debt (type: LongTermLiab)
+  long_term_debt: []             # e.g., [300]
+
+  # Equity accounts (type: Equity) — exclude retained earnings to avoid double-count
+  equity_accounts: []            # e.g., [400, 405]
+
+  # Retained Earnings account — excluded from financing to avoid double-counting net income
+  retained_earnings: []          # e.g., [410]
+
+# ── Custom Adjustments ───────────────────────────────────────────────────────
+# One-off items that are not captured by the automated account-balance logic.
+# category must be one of: operating, investing, financing
+# Positive amounts = cash inflow. Negative amounts = cash outflow.
+custom_adjustments: []
+# Example:
+# custom_adjustments:
+#   - name: "PPP Loan Forgiveness"
+#     amount: 50000.00
+#     category: "operating"
+#   - name: "Proceeds from Sale of Equipment"
+#     amount: 15000.00
+#     category: "investing"
+#   - name: "Dividend Payment"
+#     amount: -25000.00
+#     category: "financing"
+
+# ── Output Settings ──────────────────────────────────────────────────────────
+output:
+  # Directory where Excel reports are saved (created automatically if missing)
+  directory: "./output"
+
+  # Filename template — {period} is replaced with YYYY-MM (e.g., 2026-01)
+  filename_pattern: "cash_flow_{period}.xlsx"
+
+  # Include raw query data in the Audit Trail tab (useful for review; set false to hide)
+  include_audit_trail: true
+
+  # Company name shown in the report header
+  company_name: "Your Company, Inc."

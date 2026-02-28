@@ -1,0 +1,22 @@
+# Credentials — never commit
+config/settings.yaml
+
+# Output files
+output/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Editor
+.vscode/
+.idea/
+*.swp
