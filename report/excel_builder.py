@@ -106,6 +106,7 @@ class ExcelReportBuilder:
         _fill_row(ws, row, COLOR_MID_BLUE, cols=2)
         row += 1
 
+        op_first_row = row
         _write(ws, row, 1, "Net Income", style="body")
         _write(ws, row, 2, cfs.net_income, style="number")
         row += 1
@@ -131,8 +132,10 @@ class ExcelReportBuilder:
             _write(ws, row, 2, item.amount, style="number_indent")
             row += 1
 
+        op_last_data_row = row - 1
+        op_total_row = row
         _write(ws, row, 1, "Net Cash from Operating Activities", style="total_label")
-        _write(ws, row, 2, cfs.operating_total, style="total_number")
+        _write(ws, row, 2, f"=SUM(B{op_first_row}:B{op_last_data_row})", style="total_number")
         _fill_row(ws, row, COLOR_LIGHT_BLUE, cols=2)
         row += 2
 
@@ -141,6 +144,7 @@ class ExcelReportBuilder:
         _fill_row(ws, row, COLOR_MID_BLUE, cols=2)
         row += 1
 
+        inv_first_row = row
         if cfs.investing_items:
             for item in cfs.investing_items:
                 _write(ws, row, 1, f"  {item.label}", style="body_indent")
@@ -150,8 +154,10 @@ class ExcelReportBuilder:
             _write(ws, row, 1, "  No investing activity this period", style="body_indent")
             row += 1
 
+        inv_last_data_row = row - 1
+        inv_total_row = row
         _write(ws, row, 1, "Net Cash from Investing Activities", style="total_label")
-        _write(ws, row, 2, cfs.investing_total, style="total_number")
+        _write(ws, row, 2, f"=SUM(B{inv_first_row}:B{inv_last_data_row})", style="total_number")
         _fill_row(ws, row, COLOR_LIGHT_BLUE, cols=2)
         row += 2
 
@@ -160,6 +166,7 @@ class ExcelReportBuilder:
         _fill_row(ws, row, COLOR_MID_BLUE, cols=2)
         row += 1
 
+        fin_first_row = row
         if cfs.financing_items:
             for item in cfs.financing_items:
                 _write(ws, row, 1, f"  {item.label}", style="body_indent")
@@ -169,35 +176,41 @@ class ExcelReportBuilder:
             _write(ws, row, 1, "  No financing activity this period", style="body_indent")
             row += 1
 
+        fin_last_data_row = row - 1
+        fin_total_row = row
         _write(ws, row, 1, "Net Cash from Financing Activities", style="total_label")
-        _write(ws, row, 2, cfs.financing_total, style="total_number")
+        _write(ws, row, 2, f"=SUM(B{fin_first_row}:B{fin_last_data_row})", style="total_number")
         _fill_row(ws, row, COLOR_LIGHT_BLUE, cols=2)
         row += 2
 
         # ── Net Change ────────────────────────────────────────────────────────
+        net_change_row = row
         _write(ws, row, 1, "NET INCREASE (DECREASE) IN CASH", style="grand_total_label")
-        _write(ws, row, 2, cfs.net_change_in_cash, style="grand_total_number")
+        _write(ws, row, 2, f"=B{op_total_row}+B{inv_total_row}+B{fin_total_row}", style="grand_total_number")
         _fill_row(ws, row, COLOR_DARK_BLUE, cols=2)
         row += 1
 
+        beg_cash_row = row
         _write(ws, row, 1, "Cash and Cash Equivalents — Beginning of Period", style="body")
         _write(ws, row, 2, cfs.beginning_cash, style="number")
         row += 1
 
+        end_cash_row = row
         _write(ws, row, 1, "Cash and Cash Equivalents — End of Period", style="grand_total_label")
-        _write(ws, row, 2, cfs.ending_cash_statement, style="grand_total_number")
+        _write(ws, row, 2, f"=B{beg_cash_row}+B{net_change_row}", style="grand_total_number")
         _fill_row(ws, row, COLOR_DARK_BLUE, cols=2)
         row += 2
 
         # ── Reconciliation check ──────────────────────────────────────────────
+        gl_cash_row = row
         _write(ws, row, 1, "GL Ending Cash Balance (per NetSuite)", style="body")
         _write(ws, row, 2, cfs.ending_cash_gl, style="number")
         row += 1
 
         diff_style = "reconciled" if recon.is_reconciled else "difference"
         diff_label = "Reconciliation Difference" if not recon.is_reconciled else "Reconciled ✓"
-        _write(ws, row, 1, diff_label, style=diff_style)
-        _write(ws, row, 2, recon.difference, style=diff_style)
+        _write(ws, row, 1, diff_label, style="body")
+        _write(ws, row, 2, f"=B{gl_cash_row}-B{end_cash_row}", style=diff_style)
         row += 1
 
     # ── Tab 2: Working Capital Detail ─────────────────────────────────────────
@@ -220,6 +233,7 @@ class ExcelReportBuilder:
         ws.freeze_panes = "A2"
 
         row = 2
+        data_start_row = row
         for item in cfs.wc_changes:
             # Find matching account data
             prior_bal = 0.0
@@ -239,14 +253,15 @@ class ExcelReportBuilder:
             _write(ws, row, 2, item.account_type or "")
             _write_num(ws, row, 3, prior_bal)
             _write_num(ws, row, 4, curr_bal)
-            _write_num(ws, row, 5, change)
+            _write_num(ws, row, 5, f"=D{row}-C{row}")
             _write_num(ws, row, 6, item.amount)
             row += 1
 
         # Totals row
+        data_end_row = row - 1
         row += 1
         _write(ws, row, 1, "Total Working Capital Cash Impact", style="subtotal_label")
-        _write(ws, row, 6, cfs.wc_total, style="subtotal_number")
+        _write(ws, row, 6, f"=SUM(F{data_start_row}:F{data_end_row})", style="subtotal_number")
 
     # ── Tab 3: Cash Transactions ──────────────────────────────────────────────
 
@@ -305,6 +320,7 @@ class ExcelReportBuilder:
         _fill_row(ws, row, COLOR_MID_BLUE, cols=2)
         row += 1
 
+        beg_cash_row = row
         _write(ws, row, 1, "Beginning Cash Balance", style="body")
         _write(ws, row, 2, cfs.beginning_cash, style="number")
         row += 1
@@ -317,12 +333,14 @@ class ExcelReportBuilder:
         _write(ws, row, 2, cfs.investing_total, style="number_indent")
         row += 1
 
+        fin_row = row
         _write(ws, row, 1, "  + Net Cash from Financing Activities", style="body_indent")
         _write(ws, row, 2, cfs.financing_total, style="number_indent")
         row += 1
 
+        stmt_ending_row = row
         _write(ws, row, 1, "Ending Cash (per Statement)", style="total_label")
-        _write(ws, row, 2, cfs.ending_cash_statement, style="total_number")
+        _write(ws, row, 2, f"=SUM(B{beg_cash_row}:B{fin_row})", style="total_number")
         _fill_row(ws, row, COLOR_LIGHT_BLUE, cols=2)
         row += 2
 
@@ -330,13 +348,14 @@ class ExcelReportBuilder:
         _fill_row(ws, row, COLOR_MID_BLUE, cols=2)
         row += 1
 
+        gl_row = row
         _write(ws, row, 1, "Ending Cash Balance (sum of bank accounts in GL)", style="body")
         _write(ws, row, 2, cfs.ending_cash_gl, style="number")
         row += 2
 
         diff_style = "reconciled" if recon.is_reconciled else "difference"
-        _write(ws, row, 1, "DIFFERENCE (GL − Statement)", style=diff_style)
-        _write(ws, row, 2, recon.difference, style=diff_style)
+        _write(ws, row, 1, "DIFFERENCE (GL − Statement)", style="body")
+        _write(ws, row, 2, f"=B{gl_row}-B{stmt_ending_row}", style=diff_style)
         row += 1
 
         status = "RECONCILED" if recon.is_reconciled else "DIFFERENCE — SEE NOTE BELOW"
