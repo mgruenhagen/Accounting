@@ -31,42 +31,54 @@ subsidiary_id: null
 # Run `python main.py discover` to see all accounts with their IDs and types.
 account_mappings:
   # Bank / Cash accounts (type: Bank)
+  # Example CSV accounts: 101 Checking Account, 102 Money Market Account
   cash_accounts: []              # e.g., [101, 102]
 
   # Accounts Receivable (type: AcctRec)
+  # Example CSV account: 120 Accounts Receivable
   accounts_receivable: []        # e.g., [120]
 
   # Inventory (type: Inventory or OthCurrAsset)
+  # Example CSV account: 130 Inventory
   inventory: []                  # e.g., [130]
 
   # Prepaid expenses and other current assets (type: OthCurrAsset)
-  prepaid_and_other_assets: []   # e.g., [150, 155]
+  # Example CSV account: 150 Prepaid Expenses
+  prepaid_and_other_assets: []   # e.g., [150]
 
   # Accounts Payable (type: AcctPay)
+  # Example CSV account: 200 Accounts Payable
   accounts_payable: []           # e.g., [200]
 
   # Accrued liabilities / other current liabilities (type: OthCurrLiab)
-  accrued_liabilities: []        # e.g., [210, 215]
+  # Example CSV accounts: 210 Accrued Liabilities, 211 Deferred Revenue
+  accrued_liabilities: []        # e.g., [210, 211]
 
   # Depreciation expense accounts (type: Expense)
-  depreciation_expense: []       # e.g., [510]
+  # Example CSV account: 650 Depreciation Expense
+  depreciation_expense: []       # e.g., [650]
 
   # Amortization expense accounts (type: Expense)
-  amortization_expense: []       # e.g., [515]
+  amortization_expense: []       # e.g., [651]
 
   # Gross fixed asset accounts (type: FixedAsset)
-  fixed_assets: []               # e.g., [160, 165]
+  # Example CSV accounts: 160 Computer Equipment, 161 Office Furniture & Fixtures
+  fixed_assets: []               # e.g., [160, 161]
 
   # Accumulated depreciation contra-asset accounts (type: FixedAsset, credit balance)
+  # Example CSV account: 170 Accumulated Depreciation
   accumulated_depreciation: []   # e.g., [170]
 
   # Long-term debt (type: LongTermLiab)
+  # Example CSV account: 300 Term Loan - First National Bank
   long_term_debt: []             # e.g., [300]
 
   # Equity accounts (type: Equity) — exclude retained earnings to avoid double-count
-  equity_accounts: []            # e.g., [400, 405]
+  # Example CSV account: 400 Common Stock
+  equity_accounts: []            # e.g., [400]
 
   # Retained Earnings account — excluded from financing to avoid double-counting net income
+  # Example CSV account: 410 Retained Earnings
   retained_earnings: []          # e.g., [410]
 
 # ── Custom Adjustments ───────────────────────────────────────────────────────
