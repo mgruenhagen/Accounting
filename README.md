@@ -18,29 +18,56 @@ This tool automates the full pipeline:
 
 Supports a **CSV fallback** for environments without API access.
 
-## Quick start
+## Workflows
+
+### Workflow A — CSV exports (no API required)
+
+If you don't have API access set up yet, or just want to run a one-off report from NetSuite exports:
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/your-org/netsuite-cashflow.git
-cd netsuite-cashflow
-
-# 2. Install dependencies
+# 1. Install dependencies
 pip install -r requirements.txt
 
-# 3. Copy the config template and fill in your NetSuite credentials
+# 2. Copy config and fill in your account mappings
 cp config/settings.example.yaml config/settings.yaml
+# (edit config/settings.yaml — NetSuite credentials are optional for CSV mode)
 
-# 4. Discover your account IDs (prints all GL accounts and a suggested config snippet)
-python main.py discover
+# 3. Export these 4 saved searches from NetSuite as CSV and drop them in ./csv_input/:
+#      balances_current.csv   — Trial Balance at current period end
+#      balances_prior.csv     — Trial Balance at prior period end
+#      pl_detail.csv          — P&L Account Activity for the period
+#      cash_transactions.csv  — GL Transaction Detail for cash accounts
 
-# 5. Paste the suggested account mappings into config/settings.yaml
-
-# 6. Run the report
-python main.py report --period 2026-01
+# 4. Run — period is detected automatically from transaction dates
+python main.py report --csv
 ```
 
-The report is saved to `./output/cash_flow_2026-01.xlsx`.
+The report is saved to `./output/cash_flow_YYYY-MM.xlsx`. See `csv_input/README.md` for the exact columns expected in each file.
+
+---
+
+### Workflow B — Live NetSuite API
+
+For automated or repeated use, the tool pulls all data directly from NetSuite:
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Copy config and fill in your NetSuite credentials
+cp config/settings.example.yaml config/settings.yaml
+
+# 3. Discover your account IDs and paste them into config/settings.yaml
+python main.py discover
+
+# 4. Run the report
+python main.py report --period 2026-01
+
+# Or auto-detect the most recently closed period
+python main.py report --auto
+```
+
+---
 
 ## Commands
 
@@ -55,17 +82,20 @@ Fetches all active GL accounts from NetSuite, groups them by type (Bank, AcctRec
 ### `report` — Generate the cash flow report
 
 ```bash
-# Specify the period
+# CSV quick mode — auto-detects period from ./csv_input/
+python main.py report --csv
+
+# CSV with explicit directory and period
+python main.py report --period 2026-01 --csv-dir ./my_exports
+
+# API mode — specify period
 python main.py report --period 2026-01
 
-# Auto-detect the most recently closed period
+# API mode — auto-detect most recently closed period
 python main.py report --auto
 
-# Use CSV exports instead of the API
-python main.py report --period 2026-01 --csv-dir ./data
-
-# Override output location
-python main.py report --period 2026-01 --output ./reports/jan2026.xlsx
+# Override output location (works with any mode)
+python main.py report --csv --output ./reports/mar2026.xlsx
 ```
 
 ## Output
@@ -166,7 +196,7 @@ If your tenant supports `AccountingPeriodBalance`, the tool will use it for fast
 
 ## CSV fallback mode
 
-If API access isn't available, export the following saved searches from NetSuite as CSV files and place them in a directory:
+Export the following saved searches from NetSuite as CSV and drop them in `./csv_input/`:
 
 | File | Contents |
 |------|----------|
@@ -178,10 +208,14 @@ If API access isn't available, export the following saved searches from NetSuite
 Then run:
 
 ```bash
-python main.py report --period 2026-01 --csv-dir ./data
+# Period is inferred automatically from transaction dates
+python main.py report --csv
+
+# Or specify the period and directory explicitly
+python main.py report --period 2026-01 --csv-dir ./my_exports
 ```
 
-Column name matching is flexible — the loader recognizes common NetSuite export header variations.
+Column name matching is flexible — the loader recognizes common NetSuite export header variations. See `csv_input/README.md` for details.
 
 ## Scheduling
 
