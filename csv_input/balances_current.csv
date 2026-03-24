@@ -1,0 +1,15 @@
+Internal ID,Number,Full Name,Type,Debit,Credit
+101,1010,Checking Account,Bank,236375.00,0.00
+102,1020,Money Market Account,Bank,50000.00,0.00
+120,1200,Accounts Receivable,AcctRec,110000.00,0.00
+130,1300,Inventory,Inventory,9000.00,0.00
+150,1500,Prepaid Expenses,OthCurrAsset,6000.00,0.00
+160,1600,Computer Equipment,FixedAsset,60000.00,0.00
+161,1610,Office Furniture & Fixtures,FixedAsset,12000.00,0.00
+170,1700,Accumulated Depreciation,FixedAsset,0.00,20000.00
+200,2000,Accounts Payable,AcctPay,0.00,40000.00
+210,2100,Accrued Liabilities,OthCurrLiab,0.00,17500.00
+211,2110,Deferred Revenue,OthCurrLiab,0.00,17000.00
+300,3000,Term Loan - First National Bank,LongTermLiab,0.00,70000.00
+400,4000,Common Stock,Equity,0.00,50000.00
+410,4100,Retained Earnings,Equity,0.00,268875.00

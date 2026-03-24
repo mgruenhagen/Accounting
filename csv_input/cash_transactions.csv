@@ -1,0 +1,13 @@
+Date,Type,Document Number,Name,Account: Internal ID,Account Number,Account,Memo,Debit,Credit
+03/05/2026,Invoice,INV-1042,Globex Corp,101,1010,Checking Account,Customer payment — Invoice 1042,45000.00,0.00
+03/12/2026,Invoice,INV-1039,Initech LLC,101,1010,Checking Account,Customer payment — Invoice 1039,28500.00,0.00
+03/19/2026,Invoice,INV-1044,Umbrella Corp,101,1010,Checking Account,Customer payment — Invoice 1044,37000.00,0.00
+03/26/2026,Invoice,INV-1046,Vandelay Industries,101,1010,Checking Account,Customer payment — Invoice 1046,18000.00,0.00
+03/01/2026,Paycheck,PAY-2026-05,Employees (Semi-Monthly),101,1010,Checking Account,Payroll direct deposit — 03/01/2026,0.00,21000.00
+03/07/2026,Bill Payment,BP-0312,Acme Properties LLC,101,1010,Checking Account,Office lease — March 2026,0.00,8500.00
+03/14/2026,Bill Payment,BP-0315,Furniture & Tech Inc,101,1010,Checking Account,Computer equipment purchase,0.00,15000.00
+03/15/2026,Paycheck,PAY-2026-06,Employees (Semi-Monthly),101,1010,Checking Account,Payroll direct deposit — 03/15/2026,0.00,21000.00
+03/20/2026,Bill Payment,BP-0318,Various Vendors,101,1010,Checking Account,AP vendor payments — batch 1,0.00,3000.00
+03/28/2026,Bill Payment,BP-0320,First National Bank,101,1010,Checking Account,Term loan principal payment,0.00,5000.00
+03/28/2026,Bill Payment,BP-0321,SaaS Stack Inc,101,1010,Checking Account,Software subscription renewals,0.00,3200.00
+03/31/2026,Bill Payment,BP-0325,Various Vendors,101,1010,Checking Account,AP vendor payments — batch 2,0.00,425.00

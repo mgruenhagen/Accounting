@@ -56,8 +56,9 @@ class AccountBalance:
         - Credit-normal accounts (liabilities, equity): credits - debits
         For P&L accounts returns the net activity for the period with the same convention.
         """
-        if self.account_type in DEBIT_NORMAL_TYPES | INCOME_TYPES | EXPENSE_TYPES:
+        if self.account_type in DEBIT_NORMAL_TYPES | EXPENSE_TYPES:
             return self.total_debits - self.total_credits
+        # Income and credit-normal BS accounts: positive balance is a credit
         return self.total_credits - self.total_debits
 
 

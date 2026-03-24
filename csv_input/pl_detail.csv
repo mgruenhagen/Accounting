@@ -1,0 +1,10 @@
+Internal ID,Number,Full Name,Type,Debit,Credit
+500,5000,Software License Revenue,Income,0.00,125000.00
+501,5010,Professional Services Revenue,Income,0.00,28000.00
+600,6000,Cost of Revenue,COGS,18000.00,0.00
+610,6100,Salaries & Benefits,Expense,42000.00,0.00
+620,6200,Rent & Utilities,Expense,8500.00,0.00
+630,6300,Software Subscriptions,Expense,3200.00,0.00
+640,6400,Sales & Marketing,Expense,5800.00,0.00
+650,6500,Depreciation Expense,Expense,1500.00,0.00
+660,6600,Interest Expense,Expense,625.00,0.00
