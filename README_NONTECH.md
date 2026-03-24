@@ -1,97 +1,76 @@
-# README for Business Owners
+# Cash Flow Report — Guide for Business Owners & Non-Technical Users
 
 ## What this is
-A tool that turns your NetSuite accounting data into a clean, standard cash flow statement (indirect method) and exports a ready-to-share Excel workbook. It’s built to get you a cash flow report right after month-end close, without days of manual spreadsheet work.
+A tool that turns your NetSuite accounting data into a clean, standard cash flow statement (indirect method) and exports a ready-to-share Excel workbook. It gets you a cash flow report right after month-end close, without days of manual spreadsheet work.
 
 ## What you get
-An Excel file with:
+An Excel file with 5 tabs:
 
-* Cash Flow (the statement)
-* Reconciliation (does ending cash tie to the ledger?)
-* Supporting detail tabs for working capital and cash transactions
+| Tab | What it shows |
+|-----|---------------|
+| **Cash Flow** | The indirect-method cash flow statement |
+| **WC Detail** | Working capital changes by account (AR, AP, inventory, prepaids) |
+| **Cash Txns** | Every cash/bank transaction for the period |
+| **Reconciliation** | Does ending cash tie to the general ledger? |
+| **Audit Trail** | Raw inputs and run metadata |
 
-## What you need to provide (choose one path)
-
-1. Most automated (API mode): one-time NetSuite token setup by an admin/tech person, then run it each month.
-2. No API access (CSV mode): export a few NetSuite reports/searches to CSV and drop them into a folder.
-
-## How you use it each month
-
-1. Tell the runner which month you want (example: 2026-01)
-2. They run one command
-3. You receive an Excel file, open Reconciliation first, then review Cash Flow
-
-## What to check
-
-Reconciliation tab: the difference should be $0 (or there should be a clear explanation)
-If not $0, review the supporting tabs to see what category/account caused it
-
-# README for Non-Technical Folks
-## What this does (plain English)
-
-Most teams can pull NetSuite financial statements easily, but a true cash flow statement often requires manual steps (pulling data, calculating working-capital changes, reconciling cash). This project automates that workflow and produces a formatted Excel report.
-
-## Who this is for
-
-Controllers / accountants / finance ops who want a repeatable cash flow process
-
-Operators who just want the final Excel output
-If you’re not technical, you typically won’t “use an app.” A technical person (or a comfortable-with-Terminal person) runs it and sends you the Excel.
-
-## What you get (the output)
-
-An Excel workbook with 5 tabs:
-
-1. Cash Flow — the indirect-method cash flow statement
-2. WC Detail — working capital changes by account
-3. Cash Txns — cash/bank transactions detail
-4. Reconciliation — ties ending cash to the general ledger
-5. Audit Trail — raw inputs and run metadata
+---
 
 ## Two ways to use it
-**Option A: Direct from NetSuite (API mode)**
 
-Use this if you can create NetSuite Token-Based Authentication access. After the one-time setup, it’s the smoothest monthly process.
+### Option A — CSV exports (simplest, no IT setup required)
 
-## Monthly workflow
+Use this if you don't want to deal with API tokens, or just need a one-off report.
 
-1. Choose the period (example: 2026-01)
-2. Run the report command
-3. Open the Excel output and review
+**Your monthly steps:**
 
-**Option B: No API Access (CSV export mode)**
+1. Run these 4 saved searches in NetSuite and export each as a CSV file:
+   - Trial Balance at current month-end → save as `balances_current.csv`
+   - Trial Balance at prior month-end → save as `balances_prior.csv`
+   - P&L Account Activity for the month → save as `pl_detail.csv`
+   - GL Transaction Detail for bank accounts → save as `cash_transactions.csv`
 
-Use this if you can’t (or don’t want to) set up NetSuite API tokens.
+2. Drop all 4 files into the `csv_input` folder (in this project)
 
-1. You export these CSVs from NetSuite and put them in one folder:
-* balances_current.csv (trial balance at current period end)
-* balances_prior.csv (trial balance at prior period end)
-* pl_detail.csv (P&L activity for the period)
-* cash_transactions.csv (cash/bank account transactions)
+3. Tell your runner to run one command:
+   ```
+   python main.py report --csv
+   ```
+   The tool figures out the month automatically from the transaction dates — no need to specify it.
 
-2. Then the runner points the tool at that folder and it generates the Excel report.
-3. Open the Excel output and review
+4. Open the Excel file from the `output` folder and review
 
-## What to check in the Excel file (simple checklist)
+---
 
-1. Open Reconciliation → confirm the difference is zero
+### Option B — Direct from NetSuite (API mode, most automated)
 
-2. Review Cash Flow → does it pass the “does this make sense?” test
+Use this if your IT/admin person has set up NetSuite Token-Based Authentication. After one-time setup, it's the smoothest monthly process — no CSV exports needed.
 
-## If something looks off:
+**Your monthly steps:**
 
-1. Check WC Detail for working-capital drivers (AR/AP/inventory/prepaids)
+1. Tell your runner which month you want (example: January 2026 = `2026-01`), or use auto-detect
+2. They run one command
+3. You receive an Excel file
 
-2. Check Cash Txns for missing/misclassified cash activity
+---
 
-## Important note about “mapping”
+## What to check each month (simple checklist)
 
-For accurate cash flow, the tool needs a one-time configuration that tells it which accounts are:
+**Step 1 — Open the Reconciliation tab first**
+- The difference should be **$0**
+- If it's not $0, there's a missing or miscategorized account — review the note on that tab before sharing the report
 
-* cash/bank
-* AR/AP/inventory/prepaids
-* depreciation/amortization
-* fixed assets & accumulated depreciation
-* debt/equity
+**Step 2 — Review the Cash Flow tab**
+- Does the Net Income line match your P&L?
+- Do the operating, investing, and financing totals make intuitive sense?
+- Is the ending cash balance what you'd expect?
 
-Once that mapping is set, monthly runs are straightforward.
+**Step 3 — If something looks off**
+- Check **WC Detail** to see what drove working capital changes (AR, AP, inventory, prepaids)
+- Check **Cash Txns** for any transactions that look misclassified or missing
+
+---
+
+## One-time setup note
+
+For accurate results, a technical person needs to configure which GL accounts belong to each category (cash/bank, AR, AP, inventory, fixed assets, debt, equity, etc.). This is done once in a config file. After that, monthly runs are straightforward.
