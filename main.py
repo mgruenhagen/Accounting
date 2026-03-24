@@ -89,11 +89,23 @@ def main() -> None:
         action="store_true",
         help="Auto-detect the most recently closed period from NetSuite",
     )
+    period_group.add_argument(
+        "--csv",
+        action="store_true",
+        help=(
+            "CSV quick mode: load files from ./csv_input/ and auto-detect the "
+            "period from transaction dates. Drop your 5 CSV exports there, then "
+            "run: python main.py report --csv"
+        ),
+    )
     report_parser.add_argument(
         "--csv-dir",
         metavar="PATH",
         default=None,
-        help="Load data from CSV exports in this directory instead of calling the API",
+        help=(
+            "Load data from CSV exports in this directory instead of calling the API. "
+            "If --period is omitted, the period is inferred from transaction dates."
+        ),
     )
     report_parser.add_argument(
         "--output",
@@ -117,6 +129,7 @@ def main() -> None:
             config=config,
             period=getattr(args, "period", None),
             auto=getattr(args, "auto", False),
+            csv=getattr(args, "csv", False),
             csv_dir=getattr(args, "csv_dir", None),
             output=getattr(args, "output", None),
         )

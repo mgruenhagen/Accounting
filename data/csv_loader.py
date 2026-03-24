@@ -221,6 +221,61 @@ def _get(row: dict, col_map: dict[str, str], field: str) -> str | None:
     return row.get(col)
 
 
+def detect_period(csv_dir: str) -> tuple[int, int]:
+    """
+    Infer the reporting period (year, month) from transaction dates in
+    cash_transactions.csv.  Returns the most recent month found.
+
+    Raises FileNotFoundError if the file is missing, or ValueError if no
+    parseable dates are found (caller should fall back to --period).
+    """
+    import re
+    from pathlib import Path
+    from datetime import datetime
+
+    path = Path(csv_dir) / "cash_transactions.csv"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Cannot auto-detect period: {path} not found.\n"
+            "Place your CSV exports in the directory and try again, "
+            "or pass --period YYYY-MM to specify the period explicitly."
+        )
+
+    date_formats = ["%m/%d/%Y", "%Y-%m-%d", "%m-%d-%Y", "%d/%m/%Y", "%m/%d/%y"]
+    months: dict[tuple[int, int], int] = {}
+    date_col: str | None = None
+
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if date_col is None:
+                for col in row.keys():
+                    if col.strip().lower() in ("date", "transaction date", "posting date"):
+                        date_col = col
+                        break
+                if date_col is None:
+                    break
+            val = (row.get(date_col) or "").strip()
+            if not val:
+                continue
+            for fmt in date_formats:
+                try:
+                    d = datetime.strptime(val, fmt)
+                    key = (d.year, d.month)
+                    months[key] = months.get(key, 0) + 1
+                    break
+                except ValueError:
+                    continue
+
+    if not months:
+        raise ValueError(
+            "No valid dates found in cash_transactions.csv.\n"
+            "Specify the period manually with --period YYYY-MM."
+        )
+
+    return max(months.keys())
+
+
 def _month_name(month: int) -> str:
     import calendar
     return calendar.month_name[month]

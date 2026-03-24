@@ -2,17 +2,18 @@
 `report` command — orchestrates the full cash flow reporting pipeline.
 
 Usage:
-    # Manual: specify the period
-    python main.py report --period 2026-01
+    # Easiest: drop CSVs in ./csv_input/ and run — period is auto-detected
+    python main.py report --csv
 
-    # Auto: detect the most recently closed period
+    # Manual: specify the period (API or explicit csv-dir)
+    python main.py report --period 2026-01
+    python main.py report --period 2026-01 --csv-dir ./my_exports
+
+    # Auto: detect the most recently closed period from NetSuite API
     python main.py report --auto
 
-    # CSV fallback (no API access required)
-    python main.py report --period 2026-01 --csv-dir ./data
-
     # Override output file location
-    python main.py report --period 2026-01 --output ./reports/jan2026.xlsx
+    python main.py report --csv --output ./reports/mar2026.xlsx
 """
 
 from __future__ import annotations
@@ -22,28 +23,50 @@ import sys
 from datetime import date
 
 
+CSV_INPUT_DIR = "./csv_input"
+
+
 def run_report(
     config: dict,
     period: str | None,
     auto: bool,
-    csv_dir: str | None,
-    output: str | None,
+    csv: bool = False,
+    csv_dir: str | None = None,
+    output: str | None = None,
 ) -> None:
     """
     Execute the report command.
 
     Args:
         config:   Loaded config dict.
-        period:   "YYYY-MM" string, e.g. "2026-01". Required unless auto=True.
+        period:   "YYYY-MM" string, e.g. "2026-01". Required unless auto/csv=True.
         auto:     If True, auto-detect the most recently closed period from NetSuite.
-        csv_dir:  Path to CSV export directory. If provided, skip API.
+        csv:      Quick mode — load CSVs from ./csv_input/ and auto-detect period.
+        csv_dir:  Path to CSV export directory. If provided without --period, period
+                  is inferred from transaction dates in the directory.
         output:   Override output file path. If None, use config pattern.
     """
+    # ── Resolve CSV directory ─────────────────────────────────────────────────
+    if csv:
+        csv_dir = CSV_INPUT_DIR
+
     # ── Determine year/month ──────────────────────────────────────────────────
     if auto:
         print("\nAuto mode: fetching latest closed period from NetSuite...")
         year, month = _get_auto_period(config)
         print(f"  Using period: {year}-{month:02d}")
+    elif csv or (csv_dir and not period):
+        # Infer period from CSV transaction dates
+        effective_dir = csv_dir or CSV_INPUT_DIR
+        print(f"\nCSV mode: loading exports from {os.path.abspath(effective_dir)}")
+        print("  Detecting period from transaction dates...")
+        try:
+            from data.csv_loader import detect_period
+            year, month = detect_period(effective_dir)
+        except (FileNotFoundError, ValueError) as exc:
+            print(f"ERROR: {exc}")
+            sys.exit(1)
+        print(f"  Detected period: {year}-{month:02d}")
     elif period:
         try:
             year, month = _parse_period(period)
@@ -51,7 +74,7 @@ def run_report(
             print(f"ERROR: {exc}")
             sys.exit(1)
     else:
-        print("ERROR: Provide --period YYYY-MM or use --auto.")
+        print("ERROR: Provide --period YYYY-MM, --auto, or --csv.")
         sys.exit(1)
 
     # ── Determine output path ─────────────────────────────────────────────────
